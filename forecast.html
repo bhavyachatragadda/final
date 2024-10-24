@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div>
+        <h1>Weather Search</h1>
+        <form id="search-form">
+            <input type="text" id="city-input" placeholder="Enter city name" required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div id="weather"></div>
+    <footer>
+        <p>View the code on <a href="https://github.com/yourusername/your-repo" target="_blank">GitHub</a></p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
+------------------------------------------------------------------------------------------------------------------------------------------------
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    color: #333;
+}
+
+form {
+    margin: 20px;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#weather {
+    margin-top: 20px;
+}
+
+footer {
+    margin-top: 40px;
+    font-size: 14px;
+}
+------------------------------------------------------------------------------------------------------------------------------------------------
+const apiKey = 'YOUR_API_KEY'; // Replace with your actual API key
+const form = document.getElementById('search-form');
+const weatherContainer = document.getElementById('weather');
+
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const city = document.getElementById('city-input').value;
+    fetchWeather(city);
+});
+
+function fetchWeather(city) {
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.cod === 200) { // Check if the response is successful
+                const cityName = data.name;
+                const temperature = data.main.temp; // Get the current temperature
+                const windSpeed = data.wind.speed; // Get the wind speed
+                const description = data.weather[0].description; // Get the weather description
+                const icon = `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`; // Get the weather icon
+
+                // Update the weather container with the new information
+                weatherContainer.innerHTML = `
+                    <h2>Weather in ${cityName}</h2>
+                    <p>Temperature: ${temperature}°C</p>
+                    <p>Wind Speed: ${windSpeed} m/s</p>
+                    <p>Description: ${description}</p>
+                    <img src="${icon}" alt="${description}">
+                `;
+            } else {
+                weatherContainer.innerHTML = `<p>City not found. Please try again.</p>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching weather data:', error);
+            weatherContainer.innerHTML = `<p>There was an error retrieving the weather data.</p>`;
+        });
+}
